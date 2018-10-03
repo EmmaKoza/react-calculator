@@ -1,0 +1,53 @@
+.App {
+  background:#6A5ACD;
+  width:60%;
+  margin:50px auto; 
+  padding:100px;
+}
+  
+.calculator {
+  width:350px;
+  margin:0 auto;
+}
+button {
+  font-size:20px;
+  background:#ccc;
+  padding:10px 0;
+  border:1px solid #bebebe;
+  transition: all .1s ease;
+}
+
+button:focus {
+  outline:none;
+  background:#a1a1a1;
+  font-weight:bold;
+}
+.display {
+  background:#222;
+  color:#fff;
+  padding:20px 10px;
+  font-size:22px;
+  font-family:sans-serif;
+  border-radius:7px 7px 0 0;
+
+}
+.calculator--keys {
+  display: grid;
+  grid-template-columns:  25% 25% 25% 25%;
+  font-weight:bold;
+  border:2px solid #666;
+}
+.key--number {
+  background:#ddd;
+}
+
+.key--equal {
+  background:tomato;
+  grid-row-start: 2;
+  grid-row-end: 6;
+  grid-column-end: 5;
+}
+
+.key--equal:focus {
+  background: #e13e21;
+}
