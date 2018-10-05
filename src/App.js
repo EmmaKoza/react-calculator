@@ -1,151 +1,144 @@
-import React, { Component } from 'react';
-import './App.css';
-import Key from './Button.js';
+import React, { Component } from 'react'
+import './App.css'
+import Key from './Key.js'
+
+const initialState = {
+  displayVal: 0,
+  prevVal: null,
+  previousKey: '',
+  operator: '',
+  calculation: null
+}
 
 class App extends Component {
-  constructor() {
-    super();
-    this.state = {
-      currentVal: 0,
-      prevVal: null,
-      lastClickedKey: '',
-      operator: '',
-      calculation: null,
-    }
-    this.handleClickNumber = this.handleClickNumber.bind(this);
-    this.handleClickDivide = this.handleClickDivide.bind(this);
-    this.handleClickMultiply = this.handleClickMultiply.bind(this);
-    this.handleClickSubtract = this.handleClickSubtract.bind(this);
-    this.handleClickAdd = this.handleClickAdd.bind(this);
-    this.handleClickDecimal = this.handleClickDecimal.bind(this);
-    this.handleClickClear = this.handleClickClear.bind(this);
-    this.handleClickCalculate= this.handleClickCalculate.bind(this);
-    this.calculate = this.calculate.bind(this);
-    this.keepCurrentCalculation = this.keepCurrentCalculation.bind(this);
-    this.operatorClickHelper = this.operatorClickHelper.bind(this);
-  }
+  state = initialState;
 
   // helper funcs
-  calculate(firstNumber, operator, secondNumber) {
-    if (operator === 'divide') {
-      return firstNumber / secondNumber;
-    } else if (operator === 'multiply') {
-      return firstNumber * secondNumber;
-    } else if (operator === 'subtract') {
-      return firstNumber - secondNumber;
-    } else {
-      return firstNumber + secondNumber;
+  calculate = (firstNumber, operator, secondNumber) => {
+    switch (operator) {
+      case 'divide':
+        return firstNumber / secondNumber
+      case 'multiply':
+        return firstNumber * secondNumber
+      case 'subtract':
+        return firstNumber - secondNumber
+      default:
+        return firstNumber + secondNumber
     }
   }
-  keepCurrentCalculation() {
-    const currentVal = parseFloat(this.state.currentVal);
-    const prevVal = parseFloat(this.state.prevVal);
-    const operator = this.state.operator;
-    const currentCalculation = this.state.calculation;
+  keepCurrentCalculation = () => {
+    const {
+      operator,
+      calculation,
+      displayVal,
+      prevVal
+    } = this.state
 
-    if (operator && prevVal && currentCalculation === null) { 
-      const calculation = this.calculate(prevVal, operator, currentVal);
-      this.setState({ calculation: calculation, currentVal: calculation });
-    } else if(operator && prevVal && currentCalculation) {
-      const updatedCalculation = this.calculate(currentCalculation, operator, currentVal);
-      this.setState({ calculation: updatedCalculation, currentVal: updatedCalculation });
+    if (operator && prevVal) {
+      if (calculation === null) {
+        const calculation = this.calculate(prevVal, operator, displayVal)
+        this.setState({ calculation, displayVal: calculation })
+      } else {
+        const updatedCalculation = this.calculate(calculation, operator, displayVal)
+        this.setState({ calculation: updatedCalculation, displayVal: updatedCalculation })
+      }
     }
   }
 
-  operatorClickHelper(operator) {
-    this.setState({ operator: operator });
-    const currentNumber = this.state.currentVal;
-    this.setState({ lastClickedKey: 'operator' });
-    this.setState({ prevVal: currentNumber });
+  operatorClickHelper = (operator) => {
+    this.setState({ operator })
+    const { displayVal } = this.state
+    this.setState({ previousKey: 'operator' })
+    this.setState({ prevVal: displayVal })
   }
- 
+
   // event handlers
-  handleClickClear() {
-    this.setState({ currentVal: 0 });
+  handleClickClear = () => {
+    this.setState(initialState)
   }
-  handleClickDivide() {
-    this.keepCurrentCalculation();
-    this.operatorClickHelper('divide');
-
+  handleClickDivide = () => {
+    this.keepCurrentCalculation()
+    this.operatorClickHelper('divide')
   }
-  handleClickAdd() {
-    this.keepCurrentCalculation();
-    this.operatorClickHelper('add');
+  handleClickAdd = () => {
+    this.keepCurrentCalculation()
+    this.operatorClickHelper('add')
   }
-  handleClickMultiply() {
-    this.keepCurrentCalculation();
-    this.operatorClickHelper('multiply');
-   
+  handleClickMultiply = () => {
+    this.keepCurrentCalculation()
+    this.operatorClickHelper('multiply')
   }
-  handleClickSubtract() {
-    this.keepCurrentCalculation();
-    this.operatorClickHelper('subtract');
+  handleClickSubtract = () => {
+    this.keepCurrentCalculation()
+    this.operatorClickHelper('subtract')
   }
-  handleClickNumber(e) {
-    this.setState({lastClickedKey: 'number'});
-    const number = e.target.value;
-    const displayedNum = this.state.currentVal;
-    const previousKey = this.state.lastClickedKey;
-    if (displayedNum === 0 || previousKey === 'operator') {
-      this.setState({ currentVal:number });
+  handleClickNumber = (e) => {
+    this.setState({ previousKey: 'number' })
+    const number = e.target.value
+    const { displayVal, previousKey } = this.state
+    if (displayVal === 0 || previousKey === 'operator') {
+      this.setState({ displayVal: number })
     } else {
-      this.setState({ currentVal: displayedNum + number });
+      this.setState({ displayVal: displayVal + number })
     }
   }
-  handleClickDecimal() {
-    const previousKeyType = this.state.lastClickedKey;
-    if(previousKeyType === 'operator'){
-      this.setState({currentVal: 0 + '.'});
+  handleClickDecimal = () => {
+    const { previousKey } = this.state
+    if (previousKey === 'operator') {
+      this.setState({ displayVal: 0 + '.' })
     }
-    this.setState({currentVal: this.state.currentVal +'.'});
-    this.setState({ lastClickedKey:'decimal' });
+    this.setState({ displayVal: this.state.displayVal + '.' })
+    this.setState({ previousKey: 'decimal' })
   }
-  handleClickCalculate() {
-    const currentCalculation = this.state.calculation;
-    const operator = this.state.operator;
-    let n1;
-    let n2;
+  handleClickCalculate = () => {
+    const {
+      currentCalculation,
+      operator,
+      prevVal,
+      displayVal
+    } = this.state
+    let n1
+    let n2
     if (currentCalculation) {
-      n1 = currentCalculation;
-      n2 = parseFloat(this.state.currentVal);
+      n1 = currentCalculation
+      n2 = parseFloat(displayVal)
     } else {
-      n1 = parseFloat(this.state.prevVal);
-      n2 = parseFloat(this.state.currentVal);
+      n1 = parseFloat(prevVal)
+      n2 = parseFloat(displayVal)
     }
-    this.setState({ currentVal: this.calculate(n1, operator, n2) });
- 
+    this.setState({ displayVal: this.calculate(n1, operator, n2) })
   }
- 
-  render() {
+
+  render () {
     return (
-      <div className="App">
-        <div className="calculator">
-          <div className="display">
-            <p>{this.state.currentVal}</p>
+      <div className='App'>
+        <div className='calculator'>
+          <div className='display'>
+            <p>{this.state.displayVal}</p>
           </div>
-          <div className="calculator--keys">
-            <Key className="key--operator" value="+" onClick={this.handleClickAdd}/>
-            <Key className="key--operator" value="-" onClick={this.handleClickSubtract}/>
-            <Key className="key--operator" value="×"onClick={this.handleClickMultiply}/>
-            <Key className="key--operator" value="÷" onClick={this.handleClickDivide}/>
-            <Key className="key--number" value="7" onClick={this.handleClickNumber}/>
-            <Key className="key--number" value="8"onClick={this.handleClickNumber}/>
-            <Key className="key--number" value="9"onClick={this.handleClickNumber}/>
-            <Key className="key--equal" value="=" onClick={this.handleClickCalculate}/>
-            <Key className="key--number" value="4"onClick={this.handleClickNumber}/>
-            <Key className="key--number" value="5"onClick={this.handleClickNumber}/>
-            <Key className="key--number" value="6"onClick={this.handleClickNumber}/>
-            <Key className="key--number" value="1"onClick={this.handleClickNumber}/>
-            <Key className="key--number" value="2"onClick={this.handleClickNumber}/>
-            <Key className="key--number" value="3"onClick={this.handleClickNumber}/>
-            <Key className="key--number" value="0"onClick={this.handleClickNumber}/>
-            <Key className="key--decimal" value="." action={"decimal"} onClick={this.handleClickDecimal}/>
-            <Key className="key--clear" value="AC" action={"clear"} onClick={this.handleClickClear} />
+          <div className='calculator--keys'>
+            <Key type='operator' value='+' onClick={this.handleClickAdd} />
+            <Key type='operator' value='-' onClick={this.handleClickSubtract} />
+            <Key type='operator' value='×' onClick={this.handleClickMultiply} />
+            <Key type='operator' value='÷' onClick={this.handleClickDivide} />
+            <Key type='number' value='7' onClick={this.handleClickNumber} />
+            <Key type='number' value='8' onClick={this.handleClickNumber} />
+            <Key type='number' value='9' onClick={this.handleClickNumber} />
+            <Key type='equal' value='=' onClick={this.handleClickCalculate} />
+            <Key type='number' value='4' onClick={this.handleClickNumber} />
+            <Key type='number' value='5' onClick={this.handleClickNumber} />
+            <Key type='number' value='6' onClick={this.handleClickNumber} />
+            <Key type='number' value='1' onClick={this.handleClickNumber} />
+            <Key type='number' value='2' onClick={this.handleClickNumber} />
+            <Key type='number' value='3' onClick={this.handleClickNumber} />
+            <Key type='number' value='0' onClick={this.handleClickNumber} />
+            <Key type='decimal' value='.' onClick={this.handleClickDecimal} />
+            <Key type='clear' value='AC' onClick={this.handleClickClear} />
           </div>
         </div>
       </div>
-    );
+    )
   }
 }
 
-export default App;
+export default App
